@@ -27,6 +27,8 @@ public:
 	ofxCvColorImage			colorImg;
 	ofxCvGrayscaleImage 	grayImage;
 
+	ofEasyCam cam; // add mouse controls for camera movement
+
 	ofMesh mainMesh;
 	
 #ifdef _USE_LIVE_VIDEO

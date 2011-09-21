@@ -3,6 +3,16 @@
 //--------------------------------------------------------------
 void testApp::setup(){
 
+	ofSetVerticalSync(true);
+	
+	// this uses depth information for occlusion
+	// rather than always drawing things on top of each other
+	// glEnable(GL_DEPTH_TEST);
+	
+	// this sets the camera's distance from the object
+	cam.setDistance(100);
+
+	
 	bNewFrame = false;
 	
 #ifdef _USE_LIVE_VIDEO
@@ -80,7 +90,7 @@ void testApp::update(){
 
 	for (int i=0; i<320*240; i++){
 		ofVec3f tmpVec = mainMesh.getVertex(i);
-		tmpVec.z = - grayImage.getPixels()[i];
+		tmpVec.z = grayImage.getPixels()[i];
 		mainMesh.setVertex(i, tmpVec);
 		ofColor tmpColor = ofFloatColor(colorImg.getPixels()[i*3]/255.f,colorImg.getPixels()[i*3+1]/255.f,colorImg.getPixels()[i*3+2]/255.f);
 		mainMesh.setColor(i, tmpColor);
@@ -92,20 +102,40 @@ void testApp::update(){
 void testApp::draw(){
 	ofClear(66,66,66);
 	
+	glDisable(GL_DEPTH_TEST);	
 	colorImg.draw(20,20);
 	grayImage.draw(20+320+20,20);
 
-	ofPushMatrix();
-	glTranslatef(100, 100, 0);
-	ofPushStyle();
-	ofSetColor(255, 255, 255);
+	glEnable(GL_DEPTH_TEST);
+	cam.begin();		
+//	ofRotateX(ofRadToDeg(.5));
+//	ofRotateY(ofRadToDeg(-.5));
+	
 	mainMesh.drawWireframe();
-	ofPopStyle();
-	ofPopMatrix();
+	
+	cam.end();
+	
+	ofSetColor(255);
+	string msg = string("Using mouse inputs to navigate ('m' to toggle): ") + (cam.getMouseInputEnabled() ? "YES" : "NO");
+	msg += "\nfps: " + ofToString(ofGetFrameRate(), 2);
+	ofDrawBitmapString(msg, 10, 20);
+	
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
+	switch(key) {
+		case 'M':
+		case 'm':
+			if(cam.getMouseInputEnabled()) cam.disableMouseInput();
+			else cam.enableMouseInput();
+			break;
+			
+		case 'F':
+		case 'f':
+			ofToggleFullscreen();
+			break;
+	}
 
 }
 
