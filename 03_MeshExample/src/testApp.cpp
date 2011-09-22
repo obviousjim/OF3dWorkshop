@@ -4,27 +4,20 @@
 void testApp::setup(){
 
 	ofSetVerticalSync(true);
+	ofSetFrameRate(60);
 	
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
 	// glEnable(GL_DEPTH_TEST);
 	
 	// this sets the camera's distance from the object
-	cam.setDistance(100);
 
 	
 	bNewFrame = false;
 	
-#ifdef _USE_LIVE_VIDEO
 	vidGrabber.setVerbose(true);
 	vidGrabber.initGrabber(320,240);
-#else
-	vidPlayer.loadMovie("fingers.mov");
-	vidPlayer.play();
-#endif
 
-    colorImg.allocate(320,240);
-	grayImage.allocate(320,240);
 	
 
 	// dots
@@ -35,12 +28,14 @@ void testApp::setup(){
 	
 
 	
-	int width = 320;
-	int height = 240;
+	int width = vidGrabber.getWidth();
+	int height = vidGrabber.getHeight();
 
+	
+	
 	for (int y = 0; y < height; y++){
 		for (int x = 0; x<width; x++){
-			mainMesh.addVertex(ofPoint(x*2,y*2,0));						// mesh index = x + y*width
+			mainMesh.addVertex(ofPoint(x,y,0));						// mesh index = x + y*width
 																		// this replicates the pixel array within the camera bitmap...
 		}
 	}
@@ -63,38 +58,35 @@ void testApp::setup(){
 		}
 	}
 	
+	
+	cam.setScale(1,-1,1);
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
-#ifdef _USE_LIVE_VIDEO
 	vidGrabber.grabFrame();
 	bNewFrame = vidGrabber.isFrameNew();
-#else
-	vidPlayer.update();
-	bNewFrame = vidPlayer.isFrameNew();
-#endif
+	
+	float depth = 300;
 	
 	if (bNewFrame){
 		
-	#ifdef _USE_LIVE_VIDEO
-			colorImg.setFromPixels(vidGrabber.getPixels(), 320,240);
+		for (int i=0; i<vidGrabber.getWidth()*vidGrabber.getHeight(); i++){
+
+			ofFloatColor sampleColor(vidGrabber.getPixels()[i*3]/255.f,				// r
+									 vidGrabber.getPixels()[i*3+1]/255.f,			// g
+									 vidGrabber.getPixels()[i*3+2]/255.f);			// b
 			
-	#else
-			colorImg.setFromPixels(vidPlayer.getPixels(), 320,240);
-	#endif
-		
-	grayImage = colorImg;
+			
+			ofVec3f tmpVec = mainMesh.getVertex(i);
+			tmpVec.z = sampleColor.getBrightness() * depth;
+			mainMesh.setVertex(i, tmpVec);
+
+			mainMesh.setColor(i, sampleColor);
+		}
 	
 	}
 
-	for (int i=0; i<320*240; i++){
-		ofVec3f tmpVec = mainMesh.getVertex(i);
-		tmpVec.z = grayImage.getPixels()[i];
-		mainMesh.setVertex(i, tmpVec);
-		ofColor tmpColor = ofFloatColor(colorImg.getPixels()[i*3]/255.f,colorImg.getPixels()[i*3+1]/255.f,colorImg.getPixels()[i*3+2]/255.f);
-		mainMesh.setColor(i, tmpColor);
-	}
 	
 }
 
@@ -103,21 +95,17 @@ void testApp::draw(){
 	ofClear(66,66,66);
 	
 	glDisable(GL_DEPTH_TEST);	
-	colorImg.draw(20,20);
-	grayImage.draw(20+320+20,20);
+	vidGrabber.draw(20,20);
 
 	glEnable(GL_DEPTH_TEST);
 	cam.begin();		
-	ofRotateX(ofRadToDeg(.5));
-	ofRotateY(ofRadToDeg(-.5));
-	
-	mainMesh.drawWireframe();
-	// mainMesh.drawFaces();
+		
+	// mainMesh.drawWireframe();
+	mainMesh.drawFaces();
 	cam.end();
 	
 	ofSetColor(255);
-	string msg = string("Using mouse inputs to navigate ('m' to toggle): ") + (cam.getMouseInputEnabled() ? "YES" : "NO");
-	msg += "\nfps: " + ofToString(ofGetFrameRate(), 2);
+	string msg = "fps: " + ofToString(ofGetFrameRate(), 2);
 	ofDrawBitmapString(msg, 10, 20);
 	
 }
@@ -125,13 +113,6 @@ void testApp::draw(){
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 	switch(key) {
-		case 'M':
-		case 'm':
-			if(cam.getMouseInputEnabled()) cam.disableMouseInput();
-			else cam.enableMouseInput();
-			break;
-			
-		case 'F':
 		case 'f':
 			ofToggleFullscreen();
 			break;
@@ -146,11 +127,26 @@ void testApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y ){
+	float rotateAmount = ofMap(ofGetMouseY(), 0, ofGetHeight(), 0, 360);
+	float distance =300.f;
+	
+	
+	ofVec3f camDirection(0,0,1);
+	
+	ofVec3f centre(vidGrabber.getWidth()/2.f,vidGrabber.getHeight()/2.f, 255/2.f);
+	
+	
+	ofVec3f camDirectionRotated = camDirection.rotated(rotateAmount, ofVec3f(1,0,0));
+	ofVec3f camPosition = centre + camDirectionRotated * distance;
+	
+	cam.setPosition(camPosition);
+	cam.lookAt(centre);
 
 }
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
+
 
 }
 

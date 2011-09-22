@@ -1,9 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxOpenCv.h"
-
-#define _USE_LIVE_VIDEO
 
 class testApp : public ofBaseApp{
 	
@@ -24,19 +21,9 @@ public:
 	
 	bool bNewFrame;
 
-	ofxCvColorImage			colorImg;
-	ofxCvGrayscaleImage 	grayImage;
-
-	ofEasyCam cam; // add mouse controls for camera movement
-
-	ofMesh mainMesh;
+	ofCamera cam; // add mouse controls for camera movement
 	
-#ifdef _USE_LIVE_VIDEO
+	ofVboMesh mainMesh;
 	ofVideoGrabber 		vidGrabber;
-#else
-	ofVideoPlayer 		vidPlayer;
-#endif
-	
-	
 	
 };
