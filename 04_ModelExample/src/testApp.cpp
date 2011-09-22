@@ -15,7 +15,10 @@ void testApp::setup(){
 	
 	//now we load our model
 	model.loadModel("dog/dog.3ds");
+	//model.loadModel("squirrel/NewSquirrel.3ds");
 	model.setPosition(ofGetWidth()*.5, ofGetHeight() * 0.75, 0);
+
+	light.enable();
 }
 
 //--------------------------------------------------------------
@@ -93,7 +96,8 @@ void testApp::drawWithMesh(){
 	//draw the model manually
 	texture.bind();
 	material.begin();
-	mesh.drawWireframe();
+	//mesh.drawWireframe();
+	mesh.drawFaces();
 	material.end();
 	texture.unbind();
 	

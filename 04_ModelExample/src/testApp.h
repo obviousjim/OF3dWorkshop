@@ -23,6 +23,8 @@ class testApp : public ofBaseApp{
 	//this is our model we'll draw	
 	ofxAssimpModelLoader model;
 	
+	ofLight light;
+	
 	//we added these functions to make it easier to switch between the two methods of drawing
 	void drawWithModel();
 	void drawWithMesh();
