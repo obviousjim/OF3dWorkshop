@@ -18,12 +18,15 @@ class testApp : public ofBaseApp{
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
-		
+	
+	//this holds all of our points
     vector<ofVec3f> points;
-    
-    bool usecamera;
-    ofCamera camera;
-    
+    //this keeps track of the center of all the points
     ofVec3f center;
-    float rotate;
+    
+	//our camera objects for looking at the scene from multiple perspectives
+	ofCamera camera;
+	
+	//if usecamera is true, we'll turn on the camera view
+    bool usecamera;
 };

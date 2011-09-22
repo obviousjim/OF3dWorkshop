@@ -2,15 +2,18 @@
 
 //--------------------------------------------------------------
 void testApp::setup(){
-
+	
+	ofSetFrameRate(60);
+	ofSetVerticalSync(true);
 	ofBackground(50, 50, 50, 0);
 
+	//we need to call this for textures to work on models
     ofDisableArbTex();
+	
+	//this makes sure that the back of the model doesn't show through the front
 	glEnable(GL_DEPTH_TEST);
 	
-    //some model / light stuff
-    glShadeModel(GL_SMOOTH);
-    light.enable();
+	//now we load our model
 	model.loadModel("squirrel/NewSquirrel.3ds");
 	model.setPosition(ofGetWidth()*.5, ofGetHeight() * 0.75, 0);
 }
@@ -24,41 +27,49 @@ void testApp::update(){
 void testApp::draw(){
     ofSetColor(255, 255, 255, 255);
 	
+	//first let's just draw the model with the model object
 	//drawWithModel();
+	
+	//then we'll learn how to draw it manually so that we have more control over the data
 	drawWithMesh();
 }
 
+//draw the model the built-in way
 void testApp::drawWithModel(){
-	ofVec3f sceneCenter = model.getSceneCenter();
+	
+	//get the position of the model
 	ofVec3f position = model.getPosition();
 
+	//save the current view
 	ofPushMatrix();
+	
+	//center ourselves there
 	ofTranslate(position);
 	ofRotate(-ofGetMouseX(), 0, 1, 0);
 	ofRotate(90,1,0,0);
 	ofTranslate(-position);
 	
+	//draw the model
 	model.drawFaces();
 	
+	//restore the view position
     ofPopMatrix();	
 }
 
+//draw the model manually
 void testApp::drawWithMesh(){
 
-	ofVec3f sceneCenter = model.getSceneCenter();
+	//get the model attributes we need
 	ofVec3f scale = model.getScale();
 	ofVec3f position = model.getPosition();
-	
 	float normalizedScale = model.getNormalizedScale();
-	
 	ofVboMesh mesh = model.getMesh(0);
 	ofTexture texture = model.getTextureForMesh(0);
 	ofMaterial material = model.getMaterialForMesh(0);
 	
-    glEnable(GL_NORMALIZE);
-	
     ofPushMatrix();
 	
+	//translate and scale based on the positioning. 
 	ofTranslate(position);
 	ofRotate(-mouseX, 0, 1, 0);
 	ofRotate(90,1,0,0);
@@ -67,13 +78,17 @@ void testApp::drawWithMesh(){
 	ofScale(scale.x,scale.y,scale.z);
 	
 	//modify mesh
+	float liquidness = 10;
+	float amplitude = 5;
+	float speedDampen = 5;		
 	vector<ofVec3f>& verts = mesh.getVertices();
 	for(int i = 0; i < verts.size(); i++){
-		verts[i].x += ofSignedNoise(verts[i].x/10, verts[i].y/10,verts[i].z/10, ofGetElapsedTimef()/5)*5;
-		verts[i].y += ofSignedNoise(verts[i].z/10, verts[i].x/10,verts[i].y/10, ofGetElapsedTimef()/5)*5;
-		verts[i].z += ofSignedNoise(verts[i].y/10, verts[i].z/10,verts[i].x/10, ofGetElapsedTimef()/5)*5;		
+		verts[i].x += ofSignedNoise(verts[i].x/liquidness, verts[i].y/liquidness,verts[i].z/liquidness, ofGetElapsedTimef()/speedDampen)*amplitude;
+		verts[i].y += ofSignedNoise(verts[i].z/liquidness, verts[i].x/liquidness,verts[i].y/liquidness, ofGetElapsedTimef()/speedDampen)*amplitude;
+		verts[i].z += ofSignedNoise(verts[i].y/liquidness, verts[i].z/liquidness,verts[i].x/liquidness, ofGetElapsedTimef()/speedDampen)*amplitude;
 	}
 	
+	//draw the model manually
 	texture.bind();
 	material.begin();
 	mesh.drawWireframe();
@@ -82,7 +97,6 @@ void testApp::drawWithMesh(){
 	
 	ofPopMatrix();
 
-	glDisable(GL_NORMALIZE);
 }
 
 //--------------------------------------------------------------
