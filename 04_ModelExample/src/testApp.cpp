@@ -14,7 +14,7 @@ void testApp::setup(){
 	glEnable(GL_DEPTH_TEST);
 	
 	//now we load our model
-	model.loadModel("squirrel/NewSquirrel.3ds");
+	model.loadModel("dog/dog.3ds");
 	model.setPosition(ofGetWidth()*.5, ofGetHeight() * 0.75, 0);
 }
 
@@ -61,6 +61,7 @@ void testApp::drawWithMesh(){
 
 	//get the model attributes we need
 	ofVec3f scale = model.getScale();
+	ofVec3f sceneCenter = model.getSceneCenter();
 	ofVec3f position = model.getPosition();
 	float normalizedScale = model.getNormalizedScale();
 	ofVboMesh mesh = model.getMesh(0);
@@ -71,15 +72,16 @@ void testApp::drawWithMesh(){
 	
 	//translate and scale based on the positioning. 
 	ofTranslate(position);
-	ofRotate(-mouseX, 0, 1, 0);
+	ofRotate(-ofGetMouseX(), 0, 1, 0);
 	ofRotate(90,1,0,0);
+
 	
 	ofScale(normalizedScale, normalizedScale, normalizedScale);
 	ofScale(scale.x,scale.y,scale.z);
 	
 	//modify mesh
-	float liquidness = 10;
-	float amplitude = 5;
+	float liquidness = 5;
+	float amplitude = 2;
 	float speedDampen = 5;		
 	vector<ofVec3f>& verts = mesh.getVertices();
 	for(int i = 0; i < verts.size(); i++){
@@ -87,7 +89,7 @@ void testApp::drawWithMesh(){
 		verts[i].y += ofSignedNoise(verts[i].z/liquidness, verts[i].x/liquidness,verts[i].y/liquidness, ofGetElapsedTimef()/speedDampen)*amplitude;
 		verts[i].z += ofSignedNoise(verts[i].y/liquidness, verts[i].z/liquidness,verts[i].x/liquidness, ofGetElapsedTimef()/speedDampen)*amplitude;
 	}
-	
+		
 	//draw the model manually
 	texture.bind();
 	material.begin();
