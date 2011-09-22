@@ -40,8 +40,7 @@ void testApp::drawWithModel(){
 	
 	model.drawFaces();
 	
-    ofPopMatrix();
-	
+    ofPopMatrix();	
 }
 
 void testApp::drawWithMesh(){
@@ -53,36 +52,37 @@ void testApp::drawWithMesh(){
 	float normalizedScale = model.getNormalizedScale();
 	
 	ofVboMesh mesh = model.getMesh(0);
-	ofTexture tex = model.getTextureForMesh(0);
-	ofMaterial mat = model.getMaterialForMesh(0);
+	ofTexture texture = model.getTextureForMesh(0);
+	ofMaterial material = model.getMaterialForMesh(0);
 	
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
     glEnable(GL_NORMALIZE);
 	
     ofPushMatrix();
-	
-	//cout << sceneCenter << endl;
 	
 	ofTranslate(position);
 	ofRotate(-mouseX, 0, 1, 0);
 	ofRotate(90,1,0,0);
 	
-	
 	ofScale(normalizedScale, normalizedScale, normalizedScale);
 	ofScale(scale.x,scale.y,scale.z);
 	
-	tex.bind();
-	mat.begin();
+	//modify mesh
+	vector<ofVec3f>& verts = mesh.getVertices();
+	for(int i = 0; i < verts.size(); i++){
+		verts[i].x += ofSignedNoise(verts[i].x/10, verts[i].y/10,verts[i].z/10, ofGetElapsedTimef()/5)*5;
+		verts[i].y += ofSignedNoise(verts[i].z/10, verts[i].x/10,verts[i].y/10, ofGetElapsedTimef()/5)*5;
+		verts[i].z += ofSignedNoise(verts[i].y/10, verts[i].z/10,verts[i].x/10, ofGetElapsedTimef()/5)*5;		
+	}
+	
+	texture.bind();
+	material.begin();
 	mesh.drawWireframe();
-	mat.end();
-	tex.unbind();
+	material.end();
+	texture.unbind();
 	
 	ofPopMatrix();
-	
-	glPopAttrib();
-	glPopClientAttrib();
-	
+
+	glDisable(GL_NORMALIZE);
 }
 
 //--------------------------------------------------------------
