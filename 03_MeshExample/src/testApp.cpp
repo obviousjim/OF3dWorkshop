@@ -48,18 +48,18 @@ void testApp::setup(){
 	for (int y = 0; y<height-1; y++){
 		for (int x=0; x<width-1; x++){
 			mainMesh.addIndex(x+y*width);				// 0
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 			mainMesh.addIndex((x+1)+y*width);			// 1
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 			mainMesh.addIndex(x+(y+1)*width);			// 10
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 			
 			mainMesh.addIndex((x+1)+y*width);			// 1
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 			mainMesh.addIndex(x+(y+1)*width);			// 10
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 			mainMesh.addIndex((x+1)+(y+1)*width);		// 11
-			mainMesh.addColor(ofFloatColor());
+			mainMesh.addColor(ofFloatColor());			// placeholder for colour data
 		}
 	}
 	
@@ -108,11 +108,11 @@ void testApp::draw(){
 
 	glEnable(GL_DEPTH_TEST);
 	cam.begin();		
-//	ofRotateX(ofRadToDeg(.5));
-//	ofRotateY(ofRadToDeg(-.5));
+	ofRotateX(ofRadToDeg(.5));
+	ofRotateY(ofRadToDeg(-.5));
 	
 	mainMesh.drawWireframe();
-	
+	// mainMesh.drawFaces();
 	cam.end();
 	
 	ofSetColor(255);
