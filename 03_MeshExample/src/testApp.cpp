@@ -5,38 +5,22 @@ void testApp::setup(){
 
 	ofSetVerticalSync(true);
 	ofSetFrameRate(60);
-	
-	// this uses depth information for occlusion
-	// rather than always drawing things on top of each other
-	// glEnable(GL_DEPTH_TEST);
+	ofBackground(66,66,66);
 	
 	// this sets the camera's distance from the object
-
 	
-	bNewFrame = false;
-	
+	//initialize the video grabber
 	vidGrabber.setVerbose(true);
 	vidGrabber.initGrabber(320,240);
 
-	
-
-	// dots
-	
-	// todo: just add the points.
-	
-	// wireframes
-	
-
-	
+	//store the width and height for convenience
 	int width = vidGrabber.getWidth();
 	int height = vidGrabber.getHeight();
-
-	
 	
 	for (int y = 0; y < height; y++){
 		for (int x = 0; x<width; x++){
-			mainMesh.addVertex(ofPoint(x,y,0));						// mesh index = x + y*width
-																		// this replicates the pixel array within the camera bitmap...
+			mainMesh.addVertex(ofPoint(x,y,0));	// mesh index = x + y*width
+												// this replicates the pixel array within the camera bitmap...
 		}
 	}
 	
@@ -58,52 +42,55 @@ void testApp::setup(){
 		}
 	}
 	
-	
+	//this is an annoying thing that is used to flip the camera
 	cam.setScale(1,-1,1);
+	
+	
+	//this determines how much we push the meshes out
+	extrusionAmount = 300.0;
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
+	//grab a new frame
 	vidGrabber.grabFrame();
-	bNewFrame = vidGrabber.isFrameNew();
 	
-	float depth = 300;
-	
-	if (bNewFrame){
-		
+	//update the mesh if we have a new frame
+	if (vidGrabber.isFrameNew()){
+		//this determines how far we extrude the mesh
 		for (int i=0; i<vidGrabber.getWidth()*vidGrabber.getHeight(); i++){
 
 			ofFloatColor sampleColor(vidGrabber.getPixels()[i*3]/255.f,				// r
 									 vidGrabber.getPixels()[i*3+1]/255.f,			// g
 									 vidGrabber.getPixels()[i*3+2]/255.f);			// b
 			
-			
+			//now we get the vertex aat this position
+			//we extrude the mesh based on it's brightness
 			ofVec3f tmpVec = mainMesh.getVertex(i);
-			tmpVec.z = sampleColor.getBrightness() * depth;
+			tmpVec.z = sampleColor.getBrightness() * extrusionAmount;
 			mainMesh.setVertex(i, tmpVec);
 
 			mainMesh.setColor(i, sampleColor);
 		}
-	
 	}
-
-	
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
-	ofClear(66,66,66);
-	
+	//we have to disable depth testing to draw the video frame
 	glDisable(GL_DEPTH_TEST);	
 	vidGrabber.draw(20,20);
-
+	
+	//but we want to enable it to show the mesh
 	glEnable(GL_DEPTH_TEST);
 	cam.begin();		
-		
+
+	//You can either draw the mesh or the wireframe
 	// mainMesh.drawWireframe();
 	mainMesh.drawFaces();
 	cam.end();
 	
+	//draw framerate for fun
 	ofSetColor(255);
 	string msg = "fps: " + ofToString(ofGetFrameRate(), 2);
 	ofDrawBitmapString(msg, 10, 20);
@@ -127,21 +114,20 @@ void testApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y ){
+	
+	//let's move the camera when you move the mouse
 	float rotateAmount = ofMap(ofGetMouseY(), 0, ofGetHeight(), 0, 360);
-	float distance =300.f;
+
 	
-	
+	//move the camera around the mesh
 	ofVec3f camDirection(0,0,1);
-	
 	ofVec3f centre(vidGrabber.getWidth()/2.f,vidGrabber.getHeight()/2.f, 255/2.f);
-	
-	
 	ofVec3f camDirectionRotated = camDirection.rotated(rotateAmount, ofVec3f(1,0,0));
-	ofVec3f camPosition = centre + camDirectionRotated * distance;
+	ofVec3f camPosition = centre + camDirectionRotated * extrusionAmount;
 	
 	cam.setPosition(camPosition);
 	cam.lookAt(centre);
-
+	
 }
 
 //--------------------------------------------------------------

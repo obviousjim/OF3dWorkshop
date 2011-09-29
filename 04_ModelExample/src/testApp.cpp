@@ -12,12 +12,11 @@ void testApp::setup(){
 	
 	//this makes sure that the back of the model doesn't show through the front
 	glEnable(GL_DEPTH_TEST);
-	
+
 	//now we load our model
 	model.loadModel("dog/dog.3ds");
 	//model.loadModel("squirrel/NewSquirrel.3ds");
 	model.setPosition(ofGetWidth()*.5, ofGetHeight() * 0.75, 0);
-
 	light.enable();
 }
 
@@ -64,7 +63,6 @@ void testApp::drawWithMesh(){
 
 	//get the model attributes we need
 	ofVec3f scale = model.getScale();
-	ofVec3f sceneCenter = model.getSceneCenter();
 	ofVec3f position = model.getPosition();
 	float normalizedScale = model.getNormalizedScale();
 	ofVboMesh mesh = model.getMesh(0);

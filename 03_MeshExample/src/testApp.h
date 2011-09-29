@@ -19,11 +19,9 @@ public:
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 	
-	bool bNewFrame;
-
 	ofCamera cam; // add mouse controls for camera movement
-	
+	float extrusionAmount;
 	ofVboMesh mainMesh;
-	ofVideoGrabber 		vidGrabber;
+	ofVideoGrabber vidGrabber;
 	
 };
