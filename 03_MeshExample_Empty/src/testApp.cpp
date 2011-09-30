@@ -33,8 +33,15 @@ void testApp::update(){
 	
 	//update the mesh if we have a new frame
 	if (vidGrabber.isFrameNew()){
-		//this determines how far we extrude the mesh
 		
+		// Pseudocode:
+		
+		// for every pixel in the camera image
+		// 		get the brightness of the pixel
+		//		get the corresponding mesh vertex
+		// 		update the vertexes' z-value using the pixel's brightness value, 
+		// 		scale this value by extrusionAmount
+		// 		update the colour of the mesh vertex using the sampled pixel colour
 	}
 }
 
